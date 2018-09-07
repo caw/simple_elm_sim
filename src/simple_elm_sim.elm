@@ -39,9 +39,57 @@ type Msg
     | Finish
 
 
+type Result
+    = IntResult Int
+    | FloatResult Float
+    | StringResult String
+
+
+type Effect
+    = OximetryOn
+    | IVIn
+
+
 type alias Simulation =
     { runningState : SimRunningState
     , runningTime : Int
+    }
+
+
+
+{-
+   Investigation: things like FBE, ECG
+   timeLocked = time (number of seconds) it takes to get the sample / do the ECG / do the CxR
+   timeForResult = time it takes to get the result back
+-}
+
+
+type alias Investigation =
+    { description : String
+    , timeTaken : Int
+    , timeForResult : Int
+    , result : Result
+    }
+
+
+
+{-
+   Intervention : things like put on sat probe, insert IV
+   timeTaken = time (number of seconds) to do the thing
+
+-}
+
+
+type alias Intervention =
+    { description : String
+    , timeTaken : Int
+    , effects : List Effect
+    }
+
+
+type alias Task =
+    { description : String
+    , result : Result
     }
 
 
