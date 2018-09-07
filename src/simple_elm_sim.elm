@@ -75,16 +75,20 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Tick _ ->
-            let
-                sim =
-                    model.sim
+            if model.sim.runningState == Running then
+                let
+                    sim =
+                        model.sim
 
-                newSim =
-                    { sim | runningTime = sim.runningTime + 1 }
-            in
-            ( { model | sim = newSim }
-            , Cmd.none
-            )
+                    newSim =
+                        { sim | runningTime = sim.runningTime + 1 }
+                in
+                ( { model | sim = newSim }
+                , Cmd.none
+                )
+
+            else
+                ( model, Cmd.none )
 
         Run ->
             let
