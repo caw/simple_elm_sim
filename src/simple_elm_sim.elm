@@ -1,9 +1,12 @@
-module Main exposing (Model, Msg(..), Simulation, init, main, subscriptions, update, view)
+module Main exposing (Model, Simulation, init, main, subscriptions, update, view)
 
 import Browser
+import Circ exposing (Circulation, circ, circView)
 import Debug exposing (toString)
 import Html exposing (..)
+import Html.Attributes exposing (disabled)
 import Html.Events exposing (onClick)
+import Messages exposing (Msg(..))
 import Task
 import Time
 
@@ -32,11 +35,10 @@ type SimRunningState
     | Finished
 
 
-type Msg
-    = Tick Time.Posix
-    | Run
-    | Pause
-    | Finish
+type UIButton
+    = RunButton
+    | PauseButton
+    | FinishButton
 
 
 type Result
@@ -53,6 +55,7 @@ type Effect
 type alias Simulation =
     { runningState : SimRunningState
     , runningTime : Int
+    , circ : Circulation
     }
 
 
@@ -80,23 +83,11 @@ type alias Investigation =
 -}
 
 
-type alias Intervention =
-    { description : String
-    , timeTaken : Int
-    , effects : List Effect
-    }
-
-
-type alias Task =
-    { description : String
-    , result : Result
-    }
-
-
 initialSim : Simulation
 initialSim =
     { runningState = NotStarted
     , runningTime = 0
+    , circ = circ
     }
 
 
@@ -113,6 +104,23 @@ initialModel =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( initialModel, Cmd.none )
+
+
+btnState : UIButton -> Model -> Bool
+btnState btn model =
+    let
+        state =
+            model.sim.runningState
+    in
+    case btn of
+        RunButton ->
+            state == Running || state == Finished
+
+        PauseButton ->
+            state == NotStarted || state == Finished || state == Paused
+
+        FinishButton ->
+            state == NotStarted || state == Finished
 
 
 
@@ -195,9 +203,11 @@ view model =
         [ h1 []
             [ text (rt ++ ":" ++ toString sim.runningState)
             , div []
-                [ button [ onClick Run ] [ text "Run" ]
-                , button [ onClick Pause ] [ text "Pause" ]
-                , button [ onClick Finish ] [ text "Finish" ]
+                [ button [ onClick Run, disabled (btnState RunButton model) ] [ text "Run" ]
+                , button [ onClick Pause, disabled (btnState PauseButton model) ] [ text "Pause" ]
+                , button [ onClick Finish, disabled (btnState FinishButton model) ] [ text "Finish" ]
                 ]
             ]
+        , hr [] []
+        , div [] [ circView model.sim.circ ]
         ]
