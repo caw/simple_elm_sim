@@ -1,6 +1,6 @@
 module Circ exposing (Circulation, circ, circView, dt, secondsInMinute, starling, updateCirculation)
 
-import Html exposing (Html, div, p, text)
+import Html exposing (Html, div, h6, p, text)
 import Messages exposing (Msg(..))
 import Round exposing (..)
 
@@ -165,7 +165,7 @@ circView : Circulation -> Html Msg
 circView c =
     let
         pa_ =
-            text (Round.round 0 c.pa)
+            Round.round 0 c.pa
 
         pra_ =
             text (Round.round 1 c.pra)
@@ -180,8 +180,7 @@ circView c =
             text (Round.round 2 c.ra)
     in
     div []
-        [ text "PA: "
-        , pa_
+        [ h6 [] [ text ("PA: " ++ pa_) ]
         , p [] []
         , text "PV: "
         , pv_

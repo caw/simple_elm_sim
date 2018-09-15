@@ -200,13 +200,11 @@ view model =
             model.sim
     in
     div []
-        [ h1 []
-            [ text (rt ++ ":" ++ toString sim.runningState)
-            , div []
-                [ button [ onClick Run, disabled (btnState RunButton model) ] [ text "Run" ]
-                , button [ onClick Pause, disabled (btnState PauseButton model) ] [ text "Pause" ]
-                , button [ onClick Finish, disabled (btnState FinishButton model) ] [ text "Finish" ]
-                ]
+        [ h1 [] [ text (rt ++ ":" ++ toString sim.runningState) ]
+        , div []
+            [ button [ onClick Run, disabled (btnState RunButton model) ] [ text "Run" ]
+            , button [ onClick Pause, disabled (btnState PauseButton model) ] [ text "Pause" ]
+            , button [ onClick Finish, disabled (btnState FinishButton model) ] [ text "Finish" ]
             ]
         , hr [] []
         , div [] [ circView model.sim.circ ]
