@@ -190,17 +190,36 @@ subscriptions model =
 -- VIEW
 
 
+toMinSec : Int -> String
+toMinSec seconds =
+    let
+        m =
+            toString (seconds // 60)
+
+        s =
+            remainderBy 60 seconds
+
+        s_pad =
+            if s < 10 then
+                "0" ++ toString s
+
+            else
+                toString s
+    in
+    m ++ ":" ++ s_pad
+
+
 view : Model -> Html Msg
 view model =
     let
         rt =
-            String.fromInt model.sim.runningTime
+            model.sim.runningTime
 
         sim =
             model.sim
     in
     div []
-        [ h1 [] [ text (rt ++ ":" ++ toString sim.runningState) ]
+        [ h1 [] [ text (toMinSec rt ++ ":" ++ toString sim.runningState) ]
         , div []
             [ button [ onClick Run, disabled (btnState RunButton model) ] [ text "Run" ]
             , button [ onClick Pause, disabled (btnState PauseButton model) ] [ text "Pause" ]

@@ -5849,10 +5849,16 @@ var author$project$Main$btnState = F2(
 				return _Utils_eq(state, author$project$Main$NotStarted) || _Utils_eq(state, author$project$Main$Finished);
 		}
 	});
+var elm$core$Debug$toString = _Debug_toString;
+var author$project$Main$toMinSec = function (seconds) {
+	var s = seconds % 60;
+	var s_pad = (s < 10) ? ('0' + elm$core$Debug$toString(s)) : elm$core$Debug$toString(s);
+	var m = elm$core$Debug$toString((seconds / 60) | 0);
+	return m + (':' + s_pad);
+};
 var author$project$Messages$Finish = {$: 'Finish'};
 var author$project$Messages$Pause = {$: 'Pause'};
 var author$project$Messages$Run = {$: 'Run'};
-var elm$core$Debug$toString = _Debug_toString;
 var elm$html$Html$button = _VirtualDom_node('button');
 var elm$html$Html$h1 = _VirtualDom_node('h1');
 var elm$html$Html$hr = _VirtualDom_node('hr');
@@ -5884,7 +5890,7 @@ var elm$html$Html$Events$onClick = function (msg) {
 };
 var author$project$Main$view = function (model) {
 	var sim = model.sim;
-	var rt = elm$core$String$fromInt(model.sim.runningTime);
+	var rt = model.sim.runningTime;
 	return A2(
 		elm$html$Html$div,
 		_List_Nil,
@@ -5896,7 +5902,7 @@ var author$project$Main$view = function (model) {
 				_List_fromArray(
 					[
 						elm$html$Html$text(
-						rt + (':' + elm$core$Debug$toString(sim.runningState)))
+						author$project$Main$toMinSec(rt) + (':' + elm$core$Debug$toString(sim.runningState)))
 					])),
 				A2(
 				elm$html$Html$div,
