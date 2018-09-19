@@ -1,0 +1,2 @@
+Time dilation
+Have color or something indicate the state of the sim, or put it in the footer somehow (wtf does that look like in HTML??)
