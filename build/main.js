@@ -5439,10 +5439,61 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 	}
 };
 var elm$html$Html$div = _VirtualDom_node('div');
-var elm$html$Html$h6 = _VirtualDom_node('h6');
 var elm$html$Html$p = _VirtualDom_node('p');
+var elm$html$Html$span = _VirtualDom_node('span');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var elm$json$Json$Encode$string = _Json_wrap;
+var elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			elm$json$Json$Encode$string(string));
+	});
+var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
+var author$project$Circ$makeResult = F3(
+	function (label, value, units) {
+		return A2(
+			elm$html$Html$div,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('result_box')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$p,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('label')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text(label)
+						])),
+					A2(
+					elm$html$Html$p,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('value')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text(value),
+							A2(
+							elm$html$Html$span,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('units')
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text(units)
+								]))
+						]))
+				]));
+	});
 var elm$core$Basics$ge = _Utils_ge;
 var elm$core$Basics$not = _Basics_not;
 var elm$core$Basics$negate = function (n) {
@@ -5740,39 +5791,36 @@ var myrho$elm_round$Round$round = myrho$elm_round$Round$roundFun(
 			}
 		}));
 var author$project$Circ$circView = function (c) {
-	var ra_ = elm$html$Html$text(
-		A2(myrho$elm_round$Round$round, 2, c.ra));
-	var pv_ = elm$html$Html$text(
-		A2(myrho$elm_round$Round$round, 1, c.pv));
-	var pra_ = elm$html$Html$text(
-		A2(myrho$elm_round$Round$round, 1, c.pra));
-	var pa_ = A2(myrho$elm_round$Round$round, 0, c.pa);
-	var fa_ = elm$html$Html$text(
-		A2(myrho$elm_round$Round$round, 1, c.fa * 60));
 	return A2(
 		elm$html$Html$div,
 		_List_Nil,
 		_List_fromArray(
 			[
-				A2(
-				elm$html$Html$h6,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text('PA: ' + pa_)
-					])),
-				A2(elm$html$Html$p, _List_Nil, _List_Nil),
-				elm$html$Html$text('PV: '),
-				pv_,
-				A2(elm$html$Html$p, _List_Nil, _List_Nil),
-				elm$html$Html$text('PRA: '),
-				pra_,
-				A2(elm$html$Html$p, _List_Nil, _List_Nil),
-				elm$html$Html$text('CO: '),
-				fa_,
-				A2(elm$html$Html$p, _List_Nil, _List_Nil),
-				elm$html$Html$text('RA: '),
-				ra_
+				A3(
+				author$project$Circ$makeResult,
+				'PA: ',
+				A2(myrho$elm_round$Round$round, 0, c.pa),
+				'mmHg'),
+				A3(
+				author$project$Circ$makeResult,
+				'PV: ',
+				A2(myrho$elm_round$Round$round, 1, c.pv),
+				'mmHg'),
+				A3(
+				author$project$Circ$makeResult,
+				'PRA: ',
+				A2(myrho$elm_round$Round$round, 1, c.pra),
+				'mmHg'),
+				A3(
+				author$project$Circ$makeResult,
+				'CO: ',
+				A2(myrho$elm_round$Round$round, 1, c.fa * 60),
+				'l/min'),
+				A3(
+				author$project$Circ$makeResult,
+				'RA: ',
+				A2(myrho$elm_round$Round$round, 0, c.ra),
+				'')
 			]));
 };
 var author$project$Main$FinishButton = {$: 'FinishButton'};

@@ -1,6 +1,7 @@
 module Circ exposing (Circulation, circ, circView, dt, secondsInMinute, starling, updateCirculation)
 
-import Html exposing (Html, div, h6, p, text)
+import Html exposing (Html, div, h6, p, span, text)
+import Html.Attributes exposing (class, id)
 import Messages exposing (Msg(..))
 import Round exposing (..)
 
@@ -161,36 +162,35 @@ updateCirculation c =
     }
 
 
+makeResult : String -> String -> String -> Html Msg
+makeResult label value units =
+    div [ class "result_box" ]
+        [ p [ class "label" ] [ text label ]
+        , p [ class "value" ] [ text value, span [ class "units" ] [ text units ] ]
+        ]
+
+
 circView : Circulation -> Html Msg
 circView c =
-    let
-        pa_ =
-            Round.round 0 c.pa
-
-        pra_ =
-            text (Round.round 1 c.pra)
-
-        pv_ =
-            text (Round.round 1 c.pv)
-
-        fa_ =
-            text (Round.round 1 (c.fa * 60))
-
-        ra_ =
-            text (Round.round 2 c.ra)
-    in
     div []
-        [ h6 [] [ text ("PA: " ++ pa_) ]
-        , p [] []
-        , text "PV: "
-        , pv_
-        , p [] []
-        , text "PRA: "
-        , pra_
-        , p [] []
-        , text "CO: "
-        , fa_
-        , p [] []
-        , text "RA: "
-        , ra_
+        [ makeResult "PA: " (Round.round 0 c.pa) "mmHg"
+        , makeResult "PV: " (Round.round 1 c.pv) "mmHg"
+        , makeResult "PRA: " (Round.round 1 c.pra) "mmHg"
+        , makeResult "CO: " (Round.round 1 (c.fa * 60)) "l/min"
+        , makeResult "RA: " (Round.round 0 c.ra) ""
         ]
+
+
+
+-- div [ class "result_box" ]
+--             [ p [ class "label" ] [ text "PA: " ]
+--             , p [ class "value" ] [ text (Round.round 0 c.pa), span [ class "units" ] [ text "mmHg" ] ]
+--             ]
+--    , p [ class "label" ] [ text "PV: " ]
+--     , p [ class "value" ] [ text (Round.round 1 c.pv) ]
+--     , p [ class "label" ] [ text "PRA: " ]
+--     , p [ class "value" ] [ text (Round.round 1 c.pa) ]
+--     , p [ class "label" ] [ text "FA: " ]
+--     , p [ class "value" ] [ text (Round.round 1 (c.fa * 60)) ]
+--     , p [ class "label" ] [ text "RA: " ]
+--     , p [ class "value" ] [ text (Round.round 2 c.ra) ]
