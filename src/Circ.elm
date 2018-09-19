@@ -162,35 +162,52 @@ updateCirculation c =
     }
 
 
-makeResult : String -> String -> String -> Html Msg
-makeResult label value units =
+makeResult : String -> Int -> Float -> String -> Html Msg
+makeResult label rounding value units =
     div [ class "result_box" ]
         [ p [ class "label" ] [ text label ]
-        , p [ class "value" ] [ text value, span [ class "units" ] [ text units ] ]
+        , p [ class "value" ] [ text (Round.round rounding value), span [ class "units" ] [ text units ] ]
         ]
 
 
-circView : Circulation -> Html Msg
+
+-- maybe make a type = Int | Float | String for displayed values... maybe
+
+
+type alias Displayed =
+    { name : String, rounding : Int, value : Float, units : String }
+
+
+circView : Circulation -> List (Html Msg)
 circView c =
-    div []
-        [ makeResult "PA: " (Round.round 0 c.pa) "mmHg"
-        , makeResult "PV: " (Round.round 1 c.pv) "mmHg"
-        , makeResult "PRA: " (Round.round 1 c.pra) "mmHg"
-        , makeResult "CO: " (Round.round 1 (c.fa * 60)) "l/min"
-        , makeResult "RA: " (Round.round 0 c.ra) ""
-        ]
-
-
-
--- div [ class "result_box" ]
---             [ p [ class "label" ] [ text "PA: " ]
---             , p [ class "value" ] [ text (Round.round 0 c.pa), span [ class "units" ] [ text "mmHg" ] ]
---             ]
---    , p [ class "label" ] [ text "PV: " ]
---     , p [ class "value" ] [ text (Round.round 1 c.pv) ]
---     , p [ class "label" ] [ text "PRA: " ]
---     , p [ class "value" ] [ text (Round.round 1 c.pa) ]
---     , p [ class "label" ] [ text "FA: " ]
---     , p [ class "value" ] [ text (Round.round 1 (c.fa * 60)) ]
---     , p [ class "label" ] [ text "RA: " ]
---     , p [ class "value" ] [ text (Round.round 2 c.ra) ]
+    let
+        displayed =
+            [ Displayed "Pa" 0 c.pa "mmHg"
+            , Displayed "Pv" 1 c.pv "mmHg"
+            , Displayed "Pra" 1 c.pra "mmHg"
+            , Displayed "Ca" 5 c.ca ""
+            , Displayed "Cv" 4 c.cv ""
+            , Displayed "Cra" 3 c.cra ""
+            , Displayed "Va" 2 c.va "L"
+            , Displayed "Vv" 2 c.vv "L"
+            , Displayed "Vra" 2 c.vra "L"
+            , Displayed "Vae" 3 c.vae "mmHg"
+            , Displayed "Vve" 3 c.vve "mmHg"
+            , Displayed "Vrae" 3 c.vrae "mmHg"
+            , Displayed "Va0" 0 c.va0 "mmHg"
+            , Displayed "Vv0" 1 c.vv0 "mmHg"
+            , Displayed "Vra0" 1 c.vra0 "mmHg"
+            , Displayed "Fa" 1 c.fa "L/min"
+            , Displayed "Fc" 1 c.fc "L/min"
+            , Displayed "Fv" 1 c.fv "L/min"
+            , Displayed "Fan" 1 c.fan "L/min"
+            , Displayed "Ra" 2 c.ra ""
+            , Displayed "Rv" 2 c.rv ""
+            , Displayed "Pga" 1 c.pga "mmHg"
+            , Displayed "Pgv" 1 c.pgv "mmHg"
+            , Displayed "HS" 1 c.hs ""
+            ]
+    in
+    List.map
+        (\{ name, rounding, value, units } -> makeResult name rounding value units)
+        displayed

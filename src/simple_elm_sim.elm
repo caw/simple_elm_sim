@@ -4,7 +4,7 @@ import Browser
 import Circ exposing (Circulation, circ, circView)
 import Debug exposing (toString)
 import Html exposing (..)
-import Html.Attributes exposing (disabled)
+import Html.Attributes exposing (class, disabled)
 import Html.Events exposing (onClick)
 import Messages exposing (Msg(..))
 import Task
@@ -207,5 +207,5 @@ view model =
             , button [ onClick Finish, disabled (btnState FinishButton model) ] [ text "Finish" ]
             ]
         , hr [] []
-        , div [] [ circView model.sim.circ ]
+        , div [ class "circulation_container" ] (circView model.sim.circ)
         ]

@@ -5423,6 +5423,10 @@ var author$project$Main$update = F2(
 					elm$core$Platform$Cmd$none);
 		}
 	});
+var author$project$Circ$Displayed = F4(
+	function (name, rounding, value, units) {
+		return {name: name, rounding: rounding, units: units, value: value};
+	});
 var elm$json$Json$Decode$map = _Json_map1;
 var elm$json$Json$Decode$map2 = _Json_map2;
 var elm$json$Json$Decode$succeed = _Json_succeed;
@@ -5452,48 +5456,6 @@ var elm$html$Html$Attributes$stringProperty = F2(
 			elm$json$Json$Encode$string(string));
 	});
 var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
-var author$project$Circ$makeResult = F3(
-	function (label, value, units) {
-		return A2(
-			elm$html$Html$div,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('result_box')
-				]),
-			_List_fromArray(
-				[
-					A2(
-					elm$html$Html$p,
-					_List_fromArray(
-						[
-							elm$html$Html$Attributes$class('label')
-						]),
-					_List_fromArray(
-						[
-							elm$html$Html$text(label)
-						])),
-					A2(
-					elm$html$Html$p,
-					_List_fromArray(
-						[
-							elm$html$Html$Attributes$class('value')
-						]),
-					_List_fromArray(
-						[
-							elm$html$Html$text(value),
-							A2(
-							elm$html$Html$span,
-							_List_fromArray(
-								[
-									elm$html$Html$Attributes$class('units')
-								]),
-							_List_fromArray(
-								[
-									elm$html$Html$text(units)
-								]))
-						]))
-				]));
-	});
 var elm$core$Basics$ge = _Utils_ge;
 var elm$core$Basics$not = _Basics_not;
 var elm$core$Basics$negate = function (n) {
@@ -5790,38 +5752,87 @@ var myrho$elm_round$Round$round = myrho$elm_round$Round$roundFun(
 				}
 			}
 		}));
+var author$project$Circ$makeResult = F4(
+	function (label, rounding, value, units) {
+		return A2(
+			elm$html$Html$div,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('result_box')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$p,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('label')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text(label)
+						])),
+					A2(
+					elm$html$Html$p,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('value')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text(
+							A2(myrho$elm_round$Round$round, rounding, value)),
+							A2(
+							elm$html$Html$span,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('units')
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text(units)
+								]))
+						]))
+				]));
+	});
 var author$project$Circ$circView = function (c) {
+	var displayed = _List_fromArray(
+		[
+			A4(author$project$Circ$Displayed, 'Pa', 0, c.pa, 'mmHg'),
+			A4(author$project$Circ$Displayed, 'Pv', 1, c.pv, 'mmHg'),
+			A4(author$project$Circ$Displayed, 'Pra', 1, c.pra, 'mmHg'),
+			A4(author$project$Circ$Displayed, 'Ca', 5, c.ca, ''),
+			A4(author$project$Circ$Displayed, 'Cv', 4, c.cv, ''),
+			A4(author$project$Circ$Displayed, 'Cra', 3, c.cra, ''),
+			A4(author$project$Circ$Displayed, 'Va', 2, c.va, 'L'),
+			A4(author$project$Circ$Displayed, 'Vv', 2, c.vv, 'L'),
+			A4(author$project$Circ$Displayed, 'Vra', 2, c.vra, 'L'),
+			A4(author$project$Circ$Displayed, 'Vae', 3, c.vae, 'mmHg'),
+			A4(author$project$Circ$Displayed, 'Vve', 3, c.vve, 'mmHg'),
+			A4(author$project$Circ$Displayed, 'Vrae', 3, c.vrae, 'mmHg'),
+			A4(author$project$Circ$Displayed, 'Va0', 0, c.va0, 'mmHg'),
+			A4(author$project$Circ$Displayed, 'Vv0', 1, c.vv0, 'mmHg'),
+			A4(author$project$Circ$Displayed, 'Vra0', 1, c.vra0, 'mmHg'),
+			A4(author$project$Circ$Displayed, 'Fa', 1, c.fa, 'L/min'),
+			A4(author$project$Circ$Displayed, 'Fc', 1, c.fc, 'L/min'),
+			A4(author$project$Circ$Displayed, 'Fv', 1, c.fv, 'L/min'),
+			A4(author$project$Circ$Displayed, 'Fan', 1, c.fan, 'L/min'),
+			A4(author$project$Circ$Displayed, 'Ra', 2, c.ra, ''),
+			A4(author$project$Circ$Displayed, 'Rv', 2, c.rv, ''),
+			A4(author$project$Circ$Displayed, 'Pga', 1, c.pga, 'mmHg'),
+			A4(author$project$Circ$Displayed, 'Pgv', 1, c.pgv, 'mmHg'),
+			A4(author$project$Circ$Displayed, 'HS', 1, c.hs, '')
+		]);
 	return A2(
-		elm$html$Html$div,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A3(
-				author$project$Circ$makeResult,
-				'PA: ',
-				A2(myrho$elm_round$Round$round, 0, c.pa),
-				'mmHg'),
-				A3(
-				author$project$Circ$makeResult,
-				'PV: ',
-				A2(myrho$elm_round$Round$round, 1, c.pv),
-				'mmHg'),
-				A3(
-				author$project$Circ$makeResult,
-				'PRA: ',
-				A2(myrho$elm_round$Round$round, 1, c.pra),
-				'mmHg'),
-				A3(
-				author$project$Circ$makeResult,
-				'CO: ',
-				A2(myrho$elm_round$Round$round, 1, c.fa * 60),
-				'l/min'),
-				A3(
-				author$project$Circ$makeResult,
-				'RA: ',
-				A2(myrho$elm_round$Round$round, 0, c.ra),
-				'')
-			]));
+		elm$core$List$map,
+		function (_n0) {
+			var name = _n0.name;
+			var rounding = _n0.rounding;
+			var value = _n0.value;
+			var units = _n0.units;
+			return A4(author$project$Circ$makeResult, name, rounding, value, units);
+		},
+		displayed);
 };
 var author$project$Main$FinishButton = {$: 'FinishButton'};
 var author$project$Main$PauseButton = {$: 'PauseButton'};
@@ -5932,11 +5943,11 @@ var author$project$Main$view = function (model) {
 				A2(elm$html$Html$hr, _List_Nil, _List_Nil),
 				A2(
 				elm$html$Html$div,
-				_List_Nil,
 				_List_fromArray(
 					[
-						author$project$Circ$circView(model.sim.circ)
-					]))
+						elm$html$Html$Attributes$class('circulation_container')
+					]),
+				author$project$Circ$circView(model.sim.circ))
 			]));
 };
 var elm$browser$Browser$External = function (a) {
