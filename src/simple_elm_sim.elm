@@ -1,15 +1,16 @@
 module Main exposing (Model, Simulation, init, main, subscriptions, update, view)
 
 import Browser
-import Circ exposing (Circulation, circ, circView)
+import Circ exposing (Circulation, circ, circView, updateCirculation)
 import Debug exposing (toString)
 import Html exposing (..)
-import Html.Attributes exposing (class, disabled, height, id, src, width)
-import Html.Events exposing (onClick)
+import Html.Attributes as Attr exposing (..)
+import Html.Events exposing (on, onClick, onInput)
 import Messages exposing (Msg(..))
 import Round exposing (..)
 import Task
 import Time
+import Utilities exposing (ntimes)
 
 
 
@@ -60,12 +61,15 @@ initialSim =
 
 
 type alias Model =
-    { sim : Simulation }
+    { sim : Simulation
+    , rangeDemo : Int
+    }
 
 
 initialModel : Model
 initialModel =
     { sim = initialSim
+    , rangeDemo = 0
     }
 
 
@@ -104,8 +108,14 @@ update msg model =
                     sim =
                         model.sim
 
+                    circ_ =
+                        ntimes 1000 updateCirculation sim.circ
+
                     newSim =
-                        { sim | runningTime = sim.runningTime + 1 }
+                        { sim
+                            | runningTime = sim.runningTime + 1
+                            , circ = circ_
+                        }
                 in
                 ( { model | sim = newSim }
                 , Cmd.none
@@ -150,7 +160,7 @@ update msg model =
                     model.sim
 
                 sim_ =
-                    { sim | speedUp = min (sim.speedUp + 0.1) 10 }
+                    { sim | speedUp = Basics.min (sim.speedUp + 0.1) 10 }
             in
             ( { model | sim = sim_ }, Cmd.none )
 
@@ -160,9 +170,33 @@ update msg model =
                     model.sim
 
                 sim_ =
-                    { sim | speedUp = max (sim.speedUp - 0.1) 0.1 }
+                    { sim | speedUp = Basics.max (sim.speedUp - 0.1) 0.1 }
             in
             ( { model | sim = sim_ }, Cmd.none )
+
+        HSUpdate str ->
+            case String.toFloat str of
+                Just f ->
+                    let
+                        sim =
+                            model.sim
+
+                        circ =
+                            sim.circ
+
+                        hs_ =
+                            f / 10
+
+                        circ_ =
+                            { circ | hs = hs_ }
+
+                        sim_ =
+                            { sim | circ = circ_ }
+                    in
+                    ( { model | sim = sim_ }, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
 
 
@@ -218,19 +252,37 @@ view model =
             ]
         , hr [] []
         , div [ class "sim_control_container" ]
-            [ div [ id "running_time" ] [ text (toMinSec rt) ]
-            , div [ id "time_dilation" ]
-                [ button [ onClick SlowDownSim ] [ text "Slower" ]
-                , div [ id "speedup" ] [ text (Round.round 1 model.sim.speedUp) ]
-                , button [ onClick SpeedUpSim ] [ text "Faster" ]
-                ]
-            , div [ id "sim_run_state" ]
-                [ button [ id "run", onClick Run, disabled (btnState RunButton model) ] [ i [ class "fa fa-play" ] [] ]
-                , button [ id "pause", onClick Pause, disabled (btnState PauseButton model) ] [ i [ class "fa fa-pause" ] [] ]
-                , button [ id "stop", onClick Finish, disabled (btnState FinishButton model) ] [ i [ class "fa fa-stop" ] [] ]
+            [ div [ id "running_time" ]
+                [ div [] [ text (toMinSec rt) ]
+                , div [ id "time_dilation" ]
+                    [ button [ onClick SlowDownSim ] [ text "Slower" ]
+                    , div [ id "speedup" ] [ text (Round.round 1 model.sim.speedUp) ]
+                    , button [ onClick SpeedUpSim ] [ text "Faster" ]
+                    ]
+                , div [ id "sim_run_state" ]
+                    [ button [ id "run", onClick Run, disabled (btnState RunButton model) ] [ i [ class "fa fa-play" ] [] ]
+                    , button [ id "pause", onClick Pause, disabled (btnState PauseButton model) ] [ i [ class "fa fa-pause" ] [] ]
+                    , button [ id "stop", onClick Finish, disabled (btnState FinishButton model) ] [ i [ class "fa fa-stop" ] [] ]
+                    ]
                 ]
             ]
         , hr [] []
         , div [ class "circulation_container" ] (circView model.sim.circ)
         , hr [] []
+        , div [ id "sliders_and_values" ]
+            [ div [ id "hs_slider", class "slide_wrapper" ]
+                [ input
+                    [ type_ "range"
+                    , Attr.min "0"
+                    , Attr.max "10"
+                    , Attr.step "1"
+                    , value <| Round.round 1 (model.sim.circ.hs * 10)
+                    , onInput HSUpdate
+                    ]
+                    []
+                ]
+            , div
+                [ id "hs_slider_value" ]
+                [ text <| Round.round 1 model.sim.circ.hs ]
+            ]
         ]

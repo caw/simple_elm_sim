@@ -4454,7 +4454,7 @@ var elm$core$Basics$mul = _Basics_mul;
 var author$project$Circ$circ = {ca: 3.55e-3, cra: 5.0e-3, cv: 8.25e-2, fa: 5.0 / author$project$Circ$secondsInMinute, fan: 5.0 / author$project$Circ$secondsInMinute, fc: 5.0 / author$project$Circ$secondsInMinute, fv: 5.0 / author$project$Circ$secondsInMinute, hs: 1.0, pa: 100.0, pga: 96.3, pgv: 3.7, pra: 0.0, pv: 3.7, ra: 19.34 * author$project$Circ$secondsInMinute, rv: 0.74 * author$project$Circ$secondsInMinute, va: 0.85, va0: 0.495, vae: 0.355, vra: 0.1, vra0: 0.1, vrae: 0.0, vv: 3.25, vv0: 2.95, vve: 0.3};
 var author$project$Main$NotStarted = {$: 'NotStarted'};
 var author$project$Main$initialSim = {circ: author$project$Circ$circ, runningState: author$project$Main$NotStarted, runningTime: 0, speedUp: 1.0};
-var author$project$Main$initialModel = {sim: author$project$Main$initialSim};
+var author$project$Main$initialModel = {rangeDemo: 0, sim: author$project$Main$initialSim};
 var elm$core$Basics$False = {$: 'False'};
 var elm$core$Basics$True = {$: 'True'};
 var elm$core$Result$isOk = function (result) {
@@ -5371,22 +5371,71 @@ var elm$time$Time$every = F2(
 var author$project$Main$subscriptions = function (model) {
 	return A2(elm$time$Time$every, 1000 / model.sim.speedUp, author$project$Messages$Tick);
 };
+var author$project$Circ$dt = 1.0e-3;
+var elm$core$Basics$pow = _Basics_pow;
+var author$project$Circ$starling = function (pra) {
+	var r2 = 6.0 * (pra + 4);
+	var r3 = A2(elm$core$Basics$pow, r2, 2.5);
+	return (((r3 / (5000 + r3)) * 13) + 0.5) / author$project$Circ$secondsInMinute;
+};
+var author$project$Circ$updateCirculation = function (c) {
+	var vve = c.vv - c.vv0;
+	var vrae = c.vra - c.vra0;
+	var vae = c.va - c.va0;
+	var pv = vve / c.cv;
+	var pra = vrae / c.cra;
+	var pgv = pv - pra;
+	var pa = vae / c.ca;
+	var pga = pa - c.pv;
+	var fv = pgv / c.rv;
+	var fc = pga / c.ra;
+	var fan = author$project$Circ$starling(pra);
+	var fa = fan * c.hs;
+	var dvv = fc - c.fv;
+	var vv = c.vv + (dvv * author$project$Circ$dt);
+	var dvra = fv - fa;
+	var vra = c.vra + (dvra * author$project$Circ$dt);
+	var dva = fa - c.fc;
+	var va = c.va + (dva * author$project$Circ$dt);
+	return _Utils_update(
+		c,
+		{fa: fa, fan: fan, fc: fc, fv: fv, pa: pa, pga: pga, pgv: pgv, pra: pra, pv: pv, va: va, vae: vae, vra: vra, vrae: vrae, vv: vv, vve: vve});
+};
 var author$project$Main$Finished = {$: 'Finished'};
 var author$project$Main$Paused = {$: 'Paused'};
 var author$project$Main$Running = {$: 'Running'};
+var author$project$Utilities$ntimes = F3(
+	function (n, func, arg) {
+		ntimes:
+		while (true) {
+			if (n === 1) {
+				return func(arg);
+			} else {
+				var $temp$n = n - 1,
+					$temp$func = func,
+					$temp$arg = func(arg);
+				n = $temp$n;
+				func = $temp$func;
+				arg = $temp$arg;
+				continue ntimes;
+			}
+		}
+	});
 var elm$core$Basics$min = F2(
 	function (x, y) {
 		return (_Utils_cmp(x, y) < 0) ? x : y;
 	});
+var elm$core$String$toFloat = _String_toFloat;
 var author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'Tick':
 				if (_Utils_eq(model.sim.runningState, author$project$Main$Running)) {
 					var sim = model.sim;
+					var circ_ = A3(author$project$Utilities$ntimes, 1000, author$project$Circ$updateCirculation, sim.circ);
 					var newSim = _Utils_update(
 						sim,
-						{runningTime: sim.runningTime + 1});
+						{circ: circ_, runningTime: sim.runningTime + 1});
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
@@ -5437,7 +5486,7 @@ var author$project$Main$update = F2(
 						model,
 						{sim: sim_}),
 					elm$core$Platform$Cmd$none);
-			default:
+			case 'SlowDownSim':
 				var sim = model.sim;
 				var sim_ = _Utils_update(
 					sim,
@@ -5449,6 +5498,28 @@ var author$project$Main$update = F2(
 						model,
 						{sim: sim_}),
 					elm$core$Platform$Cmd$none);
+			default:
+				var str = msg.a;
+				var _n1 = elm$core$String$toFloat(str);
+				if (_n1.$ === 'Just') {
+					var f = _n1.a;
+					var sim = model.sim;
+					var hs_ = f / 10;
+					var circ = sim.circ;
+					var circ_ = _Utils_update(
+						circ,
+						{hs: hs_});
+					var sim_ = _Utils_update(
+						sim,
+						{circ: circ_});
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{sim: sim_}),
+						elm$core$Platform$Cmd$none);
+				} else {
+					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				}
 		}
 	});
 var author$project$Circ$Displayed = F4(
@@ -5885,6 +5956,9 @@ var author$project$Main$toMinSec = function (seconds) {
 	return m + (':' + s_pad);
 };
 var author$project$Messages$Finish = {$: 'Finish'};
+var author$project$Messages$HSUpdate = function (a) {
+	return {$: 'HSUpdate', a: a};
+};
 var author$project$Messages$Pause = {$: 'Pause'};
 var author$project$Messages$Run = {$: 'Run'};
 var author$project$Messages$SlowDownSim = {$: 'SlowDownSim'};
@@ -5893,6 +5967,7 @@ var elm$html$Html$button = _VirtualDom_node('button');
 var elm$html$Html$hr = _VirtualDom_node('hr');
 var elm$html$Html$i = _VirtualDom_node('i');
 var elm$html$Html$img = _VirtualDom_node('img');
+var elm$html$Html$input = _VirtualDom_node('input');
 var elm$json$Json$Encode$bool = _Json_wrap;
 var elm$html$Html$Attributes$boolProperty = F2(
 	function (key, bool) {
@@ -5909,12 +5984,19 @@ var elm$html$Html$Attributes$height = function (n) {
 		elm$core$String$fromInt(n));
 };
 var elm$html$Html$Attributes$id = elm$html$Html$Attributes$stringProperty('id');
+var elm$html$Html$Attributes$max = elm$html$Html$Attributes$stringProperty('max');
+var elm$html$Html$Attributes$min = elm$html$Html$Attributes$stringProperty('min');
 var elm$html$Html$Attributes$src = function (url) {
 	return A2(
 		elm$html$Html$Attributes$stringProperty,
 		'src',
 		_VirtualDom_noJavaScriptOrHtmlUri(url));
 };
+var elm$html$Html$Attributes$step = function (n) {
+	return A2(elm$html$Html$Attributes$stringProperty, 'step', n);
+};
+var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
+var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
 var elm$html$Html$Attributes$width = function (n) {
 	return A2(
 		_VirtualDom_attribute,
@@ -5937,6 +6019,39 @@ var elm$html$Html$Events$onClick = function (msg) {
 		elm$html$Html$Events$on,
 		'click',
 		elm$json$Json$Decode$succeed(msg));
+};
+var elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var elm$json$Json$Decode$field = _Json_decodeField;
+var elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3(elm$core$List$foldr, elm$json$Json$Decode$field, decoder, fields);
+	});
+var elm$json$Json$Decode$string = _Json_decodeString;
+var elm$html$Html$Events$targetValue = A2(
+	elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	elm$json$Json$Decode$string);
+var elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			elm$json$Json$Decode$map,
+			elm$html$Html$Events$alwaysStop,
+			A2(elm$json$Json$Decode$map, tagger, elm$html$Html$Events$targetValue)));
 };
 var author$project$Main$view = function (model) {
 	var sim = model.sim;
@@ -6153,7 +6268,51 @@ var author$project$Main$view = function (model) {
 					[
 						elm$html$Html$Attributes$class('circulation_container')
 					]),
-				author$project$Circ$circView(model.sim.circ))
+				author$project$Circ$circView(model.sim.circ)),
+				A2(elm$html$Html$hr, _List_Nil, _List_Nil),
+				A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$id('sliders_and_values')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$id('hs_slider'),
+								elm$html$Html$Attributes$class('slide_wrapper')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$input,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$type_('range'),
+										elm$html$Html$Attributes$min('0'),
+										elm$html$Html$Attributes$max('10'),
+										elm$html$Html$Attributes$step('1'),
+										elm$html$Html$Attributes$value(
+										A2(myrho$elm_round$Round$round, 1, model.sim.circ.hs * 10)),
+										elm$html$Html$Events$onInput(author$project$Messages$HSUpdate)
+									]),
+								_List_Nil)
+							])),
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$id('hs_slider_value')
+							]),
+						_List_fromArray(
+							[
+								elm$html$Html$text(
+								A2(myrho$elm_round$Round$round, 1, model.sim.circ.hs))
+							]))
+					]))
 			]));
 };
 var elm$browser$Browser$External = function (a) {

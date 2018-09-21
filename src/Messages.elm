@@ -10,3 +10,4 @@ type Msg
     | Finish
     | SlowDownSim
     | SpeedUpSim
+    | HSUpdate String
