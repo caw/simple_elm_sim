@@ -272,7 +272,8 @@ view model =
         , div [ id "sliders_and_values" ]
             [ div [ id "hs_slider", class "slide_wrapper" ]
                 [ input
-                    [ type_ "range"
+                    [ class "slider"
+                    , type_ "range"
                     , Attr.min "0"
                     , Attr.max "10"
                     , Attr.step "1"

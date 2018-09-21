@@ -37,6 +37,7 @@ button {
 
 .label {
     color: white;
+    text-align: left;
 }
 
 .value {
@@ -158,9 +159,36 @@ button {
     align-content: left;
 }
 
-#hs_slider {
-    background:red;
+.slider {
+    appearance: none;
+    -webkit-appearance: none;
+    background: orange;
+    outline:none;
+    opacity: 0.4;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
 
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none; 
+    background: black;
+    cursor:pointer;
+}
+
+.slider::-moz-range-thumb {
+    background: black;
+    cursor:pointer;
+}
+
+
+#hs_slider {
+    grid-column: 1;
 }
 
 #hs_slider_value {

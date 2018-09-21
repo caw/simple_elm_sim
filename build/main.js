@@ -6291,6 +6291,7 @@ var author$project$Main$view = function (model) {
 								elm$html$Html$input,
 								_List_fromArray(
 									[
+										elm$html$Html$Attributes$class('slider'),
 										elm$html$Html$Attributes$type_('range'),
 										elm$html$Html$Attributes$min('0'),
 										elm$html$Html$Attributes$max('10'),
