@@ -4,9 +4,10 @@ import Browser
 import Circ exposing (Circulation, circ, circView)
 import Debug exposing (toString)
 import Html exposing (..)
-import Html.Attributes exposing (class, disabled)
+import Html.Attributes exposing (class, disabled, height, id, src, width)
 import Html.Events exposing (onClick)
 import Messages exposing (Msg(..))
+import Round exposing (..)
 import Task
 import Time
 
@@ -41,51 +42,18 @@ type UIButton
     | FinishButton
 
 
-type Result
-    = IntResult Int
-    | FloatResult Float
-    | StringResult String
-
-
-type Effect
-    = OximetryOn
-    | IVIn
-
-
 type alias Simulation =
     { runningState : SimRunningState
+    , speedUp : Float
     , runningTime : Int
     , circ : Circulation
     }
 
 
-
-{-
-   Investigation: things like FBE, ECG
-   timeLocked = time (number of seconds) it takes to get the sample / do the ECG / do the CxR
-   timeForResult = time it takes to get the result back
--}
-
-
-type alias Investigation =
-    { description : String
-    , timeTaken : Int
-    , timeForResult : Int
-    , result : Result
-    }
-
-
-
-{-
-   Intervention : things like put on sat probe, insert IV
-   timeTaken = time (number of seconds) to do the thing
-
--}
-
-
 initialSim : Simulation
 initialSim =
     { runningState = NotStarted
+    , speedUp = 1.0
     , runningTime = 0
     , circ = circ
     }
@@ -176,6 +144,26 @@ update msg model =
             in
             ( { model | sim = newSim }, Cmd.none )
 
+        SpeedUpSim ->
+            let
+                sim =
+                    model.sim
+
+                sim_ =
+                    { sim | speedUp = min (sim.speedUp + 0.1) 10 }
+            in
+            ( { model | sim = sim_ }, Cmd.none )
+
+        SlowDownSim ->
+            let
+                sim =
+                    model.sim
+
+                sim_ =
+                    { sim | speedUp = max (sim.speedUp - 0.1) 0.1 }
+            in
+            ( { model | sim = sim_ }, Cmd.none )
+
 
 
 -- SUBSCRIPTIONS
@@ -183,7 +171,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Time.every 1000 Tick
+    Time.every (1000 / model.sim.speedUp) Tick
 
 
 
@@ -219,12 +207,30 @@ view model =
             model.sim
     in
     div []
-        [ h1 [] [ text (toMinSec rt ++ ":" ++ toString sim.runningState) ]
-        , div []
-            [ button [ onClick Run, disabled (btnState RunButton model) ] [ text "Run" ]
-            , button [ onClick Pause, disabled (btnState PauseButton model) ] [ text "Pause" ]
-            , button [ onClick Finish, disabled (btnState FinishButton model) ] [ text "Finish" ]
+        [ div [ id "header" ]
+            [ img [ src "images/MULogo.jpg", width 100, height 100 ] []
+            , div [ id "MuSIM" ] [ text "MuSIM" ]
+            , div [ id "sim_ui_mode" ]
+                [ div [ class "ui_mode" ] [ text "End User" ]
+                , div [ class "ui_mode" ] [ text "Design" ]
+                , div [ class "active_ui_mode" ] [ text "Low Level" ]
+                ]
+            ]
+        , hr [] []
+        , div [ class "sim_control_container" ]
+            [ div [ id "running_time" ] [ text (toMinSec rt) ]
+            , div [ id "time_dilation" ]
+                [ button [ onClick SlowDownSim ] [ text "Slower" ]
+                , div [ id "speedup" ] [ text (Round.round 1 model.sim.speedUp) ]
+                , button [ onClick SpeedUpSim ] [ text "Faster" ]
+                ]
+            , div [ id "sim_run_state" ]
+                [ button [ id "run", onClick Run, disabled (btnState RunButton model) ] [ i [ class "fa fa-play" ] [] ]
+                , button [ id "pause", onClick Pause, disabled (btnState PauseButton model) ] [ i [ class "fa fa-pause" ] [] ]
+                , button [ id "stop", onClick Finish, disabled (btnState FinishButton model) ] [ i [ class "fa fa-stop" ] [] ]
+                ]
             ]
         , hr [] []
         , div [ class "circulation_container" ] (circView model.sim.circ)
+        , hr [] []
         ]

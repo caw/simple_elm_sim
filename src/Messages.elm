@@ -8,3 +8,5 @@ type Msg
     | Run
     | Pause
     | Finish
+    | SlowDownSim
+    | SpeedUpSim

@@ -4453,7 +4453,7 @@ var elm$core$Basics$fdiv = _Basics_fdiv;
 var elm$core$Basics$mul = _Basics_mul;
 var author$project$Circ$circ = {ca: 3.55e-3, cra: 5.0e-3, cv: 8.25e-2, fa: 5.0 / author$project$Circ$secondsInMinute, fan: 5.0 / author$project$Circ$secondsInMinute, fc: 5.0 / author$project$Circ$secondsInMinute, fv: 5.0 / author$project$Circ$secondsInMinute, hs: 1.0, pa: 100.0, pga: 96.3, pgv: 3.7, pra: 0.0, pv: 3.7, ra: 19.34 * author$project$Circ$secondsInMinute, rv: 0.74 * author$project$Circ$secondsInMinute, va: 0.85, va0: 0.495, vae: 0.355, vra: 0.1, vra0: 0.1, vrae: 0.0, vv: 3.25, vv0: 2.95, vve: 0.3};
 var author$project$Main$NotStarted = {$: 'NotStarted'};
-var author$project$Main$initialSim = {circ: author$project$Circ$circ, runningState: author$project$Main$NotStarted, runningTime: 0};
+var author$project$Main$initialSim = {circ: author$project$Circ$circ, runningState: author$project$Main$NotStarted, runningTime: 0, speedUp: 1.0};
 var author$project$Main$initialModel = {sim: author$project$Main$initialSim};
 var elm$core$Basics$False = {$: 'False'};
 var elm$core$Basics$True = {$: 'True'};
@@ -5369,11 +5369,15 @@ var elm$time$Time$every = F2(
 			A2(elm$time$Time$Every, interval, tagger));
 	});
 var author$project$Main$subscriptions = function (model) {
-	return A2(elm$time$Time$every, 1000, author$project$Messages$Tick);
+	return A2(elm$time$Time$every, 1000 / model.sim.speedUp, author$project$Messages$Tick);
 };
 var author$project$Main$Finished = {$: 'Finished'};
 var author$project$Main$Paused = {$: 'Paused'};
 var author$project$Main$Running = {$: 'Running'};
+var elm$core$Basics$min = F2(
+	function (x, y) {
+		return (_Utils_cmp(x, y) < 0) ? x : y;
+	});
 var author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -5411,7 +5415,7 @@ var author$project$Main$update = F2(
 						model,
 						{sim: newSim}),
 					elm$core$Platform$Cmd$none);
-			default:
+			case 'Finish':
 				var sim = model.sim;
 				var newSim = _Utils_update(
 					sim,
@@ -5420,6 +5424,30 @@ var author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{sim: newSim}),
+					elm$core$Platform$Cmd$none);
+			case 'SpeedUpSim':
+				var sim = model.sim;
+				var sim_ = _Utils_update(
+					sim,
+					{
+						speedUp: A2(elm$core$Basics$min, sim.speedUp + 0.1, 10)
+					});
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{sim: sim_}),
+					elm$core$Platform$Cmd$none);
+			default:
+				var sim = model.sim;
+				var sim_ = _Utils_update(
+					sim,
+					{
+						speedUp: A2(elm$core$Basics$max, sim.speedUp - 0.1, 0.1)
+					});
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{sim: sim_}),
 					elm$core$Platform$Cmd$none);
 		}
 	});
@@ -5859,9 +5887,12 @@ var author$project$Main$toMinSec = function (seconds) {
 var author$project$Messages$Finish = {$: 'Finish'};
 var author$project$Messages$Pause = {$: 'Pause'};
 var author$project$Messages$Run = {$: 'Run'};
+var author$project$Messages$SlowDownSim = {$: 'SlowDownSim'};
+var author$project$Messages$SpeedUpSim = {$: 'SpeedUpSim'};
 var elm$html$Html$button = _VirtualDom_node('button');
-var elm$html$Html$h1 = _VirtualDom_node('h1');
 var elm$html$Html$hr = _VirtualDom_node('hr');
+var elm$html$Html$i = _VirtualDom_node('i');
+var elm$html$Html$img = _VirtualDom_node('img');
 var elm$json$Json$Encode$bool = _Json_wrap;
 var elm$html$Html$Attributes$boolProperty = F2(
 	function (key, bool) {
@@ -5871,6 +5902,25 @@ var elm$html$Html$Attributes$boolProperty = F2(
 			elm$json$Json$Encode$bool(bool));
 	});
 var elm$html$Html$Attributes$disabled = elm$html$Html$Attributes$boolProperty('disabled');
+var elm$html$Html$Attributes$height = function (n) {
+	return A2(
+		_VirtualDom_attribute,
+		'height',
+		elm$core$String$fromInt(n));
+};
+var elm$html$Html$Attributes$id = elm$html$Html$Attributes$stringProperty('id');
+var elm$html$Html$Attributes$src = function (url) {
+	return A2(
+		elm$html$Html$Attributes$stringProperty,
+		'src',
+		_VirtualDom_noJavaScriptOrHtmlUri(url));
+};
+var elm$html$Html$Attributes$width = function (n) {
+	return A2(
+		_VirtualDom_attribute,
+		'width',
+		elm$core$String$fromInt(n));
+};
 var elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -5897,53 +5947,203 @@ var author$project$Main$view = function (model) {
 		_List_fromArray(
 			[
 				A2(
-				elm$html$Html$h1,
-				_List_Nil,
+				elm$html$Html$div,
 				_List_fromArray(
 					[
-						elm$html$Html$text(
-						author$project$Main$toMinSec(rt) + (':' + elm$core$Debug$toString(sim.runningState)))
+						elm$html$Html$Attributes$id('header')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$img,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$src('images/MULogo.jpg'),
+								elm$html$Html$Attributes$width(100),
+								elm$html$Html$Attributes$height(100)
+							]),
+						_List_Nil),
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$id('MuSIM')
+							]),
+						_List_fromArray(
+							[
+								elm$html$Html$text('MuSIM')
+							])),
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$id('sim_ui_mode')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$div,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('ui_mode')
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('End User')
+									])),
+								A2(
+								elm$html$Html$div,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('ui_mode')
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('Design')
+									])),
+								A2(
+								elm$html$Html$div,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('active_ui_mode')
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('Low Level')
+									]))
+							]))
 					])),
+				A2(elm$html$Html$hr, _List_Nil, _List_Nil),
 				A2(
 				elm$html$Html$div,
-				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('sim_control_container')
+					]),
 				_List_fromArray(
 					[
 						A2(
-						elm$html$Html$button,
+						elm$html$Html$div,
 						_List_fromArray(
 							[
-								elm$html$Html$Events$onClick(author$project$Messages$Run),
-								elm$html$Html$Attributes$disabled(
-								A2(author$project$Main$btnState, author$project$Main$RunButton, model))
+								elm$html$Html$Attributes$id('running_time')
 							]),
 						_List_fromArray(
 							[
-								elm$html$Html$text('Run')
-							])),
-						A2(
-						elm$html$Html$button,
-						_List_fromArray(
-							[
-								elm$html$Html$Events$onClick(author$project$Messages$Pause),
-								elm$html$Html$Attributes$disabled(
-								A2(author$project$Main$btnState, author$project$Main$PauseButton, model))
-							]),
-						_List_fromArray(
-							[
-								elm$html$Html$text('Pause')
-							])),
-						A2(
-						elm$html$Html$button,
-						_List_fromArray(
-							[
-								elm$html$Html$Events$onClick(author$project$Messages$Finish),
-								elm$html$Html$Attributes$disabled(
-								A2(author$project$Main$btnState, author$project$Main$FinishButton, model))
-							]),
-						_List_fromArray(
-							[
-								elm$html$Html$text('Finish')
+								A2(
+								elm$html$Html$div,
+								_List_Nil,
+								_List_fromArray(
+									[
+										elm$html$Html$text(
+										author$project$Main$toMinSec(rt))
+									])),
+								A2(
+								elm$html$Html$div,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$id('time_dilation')
+									]),
+								_List_fromArray(
+									[
+										A2(
+										elm$html$Html$button,
+										_List_fromArray(
+											[
+												elm$html$Html$Events$onClick(author$project$Messages$SlowDownSim)
+											]),
+										_List_fromArray(
+											[
+												elm$html$Html$text('Slower')
+											])),
+										A2(
+										elm$html$Html$div,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$id('speedup')
+											]),
+										_List_fromArray(
+											[
+												elm$html$Html$text(
+												A2(myrho$elm_round$Round$round, 1, model.sim.speedUp))
+											])),
+										A2(
+										elm$html$Html$button,
+										_List_fromArray(
+											[
+												elm$html$Html$Events$onClick(author$project$Messages$SpeedUpSim)
+											]),
+										_List_fromArray(
+											[
+												elm$html$Html$text('Faster')
+											]))
+									])),
+								A2(
+								elm$html$Html$div,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$id('sim_run_state')
+									]),
+								_List_fromArray(
+									[
+										A2(
+										elm$html$Html$button,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$id('run'),
+												elm$html$Html$Events$onClick(author$project$Messages$Run),
+												elm$html$Html$Attributes$disabled(
+												A2(author$project$Main$btnState, author$project$Main$RunButton, model))
+											]),
+										_List_fromArray(
+											[
+												A2(
+												elm$html$Html$i,
+												_List_fromArray(
+													[
+														elm$html$Html$Attributes$class('fa fa-play')
+													]),
+												_List_Nil)
+											])),
+										A2(
+										elm$html$Html$button,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$id('pause'),
+												elm$html$Html$Events$onClick(author$project$Messages$Pause),
+												elm$html$Html$Attributes$disabled(
+												A2(author$project$Main$btnState, author$project$Main$PauseButton, model))
+											]),
+										_List_fromArray(
+											[
+												A2(
+												elm$html$Html$i,
+												_List_fromArray(
+													[
+														elm$html$Html$Attributes$class('fa fa-pause')
+													]),
+												_List_Nil)
+											])),
+										A2(
+										elm$html$Html$button,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$id('stop'),
+												elm$html$Html$Events$onClick(author$project$Messages$Finish),
+												elm$html$Html$Attributes$disabled(
+												A2(author$project$Main$btnState, author$project$Main$FinishButton, model))
+											]),
+										_List_fromArray(
+											[
+												A2(
+												elm$html$Html$i,
+												_List_fromArray(
+													[
+														elm$html$Html$Attributes$class('fa fa-stop')
+													]),
+												_List_Nil)
+											]))
+									]))
 							]))
 					])),
 				A2(elm$html$Html$hr, _List_Nil, _List_Nil),

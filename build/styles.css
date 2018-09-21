@@ -1,15 +1,38 @@
-body{
-    background-color: gainsboro;
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    background: #d6d6d6;
+    text-align: center;
+    padding: 0px 0px;
 }
+ 
 
-h1 {
-    color: black;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 18pt;
-}
 p {
     color: red;
     margin: 0px;
+}
+
+hr {
+    color : rgb(0, 63, 134);
+}
+
+button {
+    color : rgb(0, 63, 134);
+}
+
+.circulation_container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+}
+
+.result_box {
+    display: block;
+    background-color: black;
+    font-size: 18pt;
+    font-family: Arial, Helvetica, sans-serif;
+    width: 30mm;
+    outline: 2px solid gray; 
+    margin-bottom: 5px;
+    padding: 0 6px;
 }
 
 .label {
@@ -30,20 +53,88 @@ p {
     margin-left: 4px;
 }
 
-.circulation_container {
-    background-color: gainsboro;
+.sim_control_container {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: 1fr 1fr;
 }
 
-.result_box {
-    display: block;
-    background-color: black;
-    font-size: 18pt;
+#header {
+    display : grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    background-color : rgb(0, 63, 134)
+}
+
+#MuSIM {
+    display: flex;
+    color: White;
     font-family: Arial, Helvetica, sans-serif;
-    width: 30mm;
-    outline: 2px solid gray; 
-    margin-bottom: 5px;
-    padding: 0 6px;
+    font-size: 36pt;
+    align-items: center;
+    justify-content: center;
+}
+
+
+#sim_ui_mode {
+    display:grid;
+    grid-template-rows: 1fr 1fr 1fr;
+}
+
+.ui_mode {
+        color:rgb(180, 180, 180);
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 12pt;
+        font-weight: bold;
+        justify-self: end;
+        padding-top: 5px;
+        padding-right: 10px;
+
+}
+
+.active_ui_mode {
+    color: White;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12pt;
+    font-weight: bold;
+    justify-self: end;
+    padding-top: 5px;
+    padding-right: 10px;
+
+}
+
+
+#running_time {
+    display: flex;
+    color:  rgb(0, 63, 134);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 36pt;
+    align-items: center;
+    justify-content: left;
+}
+
+#time_dilation{
+    display: grid;
+    grid-template-rows: repeat(3, 25px);
+}
+
+#speedup{
+    display: flex;
+    color: black;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12pt;
+    align-items: center;
+    justify-content: center;
+}
+
+#sim_run_state{
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr
+}
+
+#run, #pause, #stop {
+    width: 50px;
+    font-size: 13pt;
+    color: rgb(0, 63, 134);
+    margin-left: 10px;
+    height: auto;
 }
 
