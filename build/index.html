@@ -15,6 +15,10 @@
       var app = Elm.Main.init({
         node: document.getElementById('elm')
       });
+      app.ports.play.subscribe(function (data) {
+          var x = document.getElementById("pulse-beep");
+          x.play();
+      })
       </script>
     </body>
 </html>

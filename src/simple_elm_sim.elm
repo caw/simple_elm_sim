@@ -1,4 +1,4 @@
-module Main exposing (Model, Simulation, init, main, subscriptions, update, view)
+port module Main exposing (Model, Simulation, init, main, subscriptions, update, view)
 
 import Browser
 import Circ exposing (Circulation, circ, circView, updateCirculation)
@@ -6,6 +6,7 @@ import Debug exposing (toString)
 import Html exposing (..)
 import Html.Attributes as Attr exposing (..)
 import Html.Events exposing (on, onClick, onInput)
+import Json.Encode as E
 import Messages exposing (Msg(..))
 import Round exposing (..)
 import Task
@@ -15,6 +16,9 @@ import Utilities exposing (ntimes)
 
 
 -- MAIN
+
+
+port play : E.Value -> Cmd msg
 
 
 main =
@@ -118,7 +122,7 @@ update msg model =
                         }
                 in
                 ( { model | sim = newSim }
-                , Cmd.none
+                , play (E.bool True)
                 )
 
             else
@@ -285,5 +289,15 @@ view model =
             , div
                 [ id "hs_slider_value" ]
                 [ text <| Round.round 1 model.sim.circ.hs ]
+            ]
+
+        -- Ellie demo at https://ellie-app.com/3r83NMJQQkxa1
+        , div [ id "audio" ]
+            [ audio
+                [ id "pulse-beep"
+                , src "short-beep.mp3"
+                , controls False
+                ]
+                []
             ]
         ]

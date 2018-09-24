@@ -5404,6 +5404,7 @@ var author$project$Circ$updateCirculation = function (c) {
 var author$project$Main$Finished = {$: 'Finished'};
 var author$project$Main$Paused = {$: 'Paused'};
 var author$project$Main$Running = {$: 'Running'};
+var author$project$Main$play = _Platform_outgoingPort('play', elm$core$Basics$identity);
 var author$project$Utilities$ntimes = F3(
 	function (n, func, arg) {
 		ntimes:
@@ -5426,6 +5427,7 @@ var elm$core$Basics$min = F2(
 		return (_Utils_cmp(x, y) < 0) ? x : y;
 	});
 var elm$core$String$toFloat = _String_toFloat;
+var elm$json$Json$Encode$bool = _Json_wrap;
 var author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -5440,7 +5442,8 @@ var author$project$Main$update = F2(
 						_Utils_update(
 							model,
 							{sim: newSim}),
-						elm$core$Platform$Cmd$none);
+						author$project$Main$play(
+							elm$json$Json$Encode$bool(true)));
 				} else {
 					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 				}
@@ -5963,12 +5966,12 @@ var author$project$Messages$Pause = {$: 'Pause'};
 var author$project$Messages$Run = {$: 'Run'};
 var author$project$Messages$SlowDownSim = {$: 'SlowDownSim'};
 var author$project$Messages$SpeedUpSim = {$: 'SpeedUpSim'};
+var elm$html$Html$audio = _VirtualDom_node('audio');
 var elm$html$Html$button = _VirtualDom_node('button');
 var elm$html$Html$hr = _VirtualDom_node('hr');
 var elm$html$Html$i = _VirtualDom_node('i');
 var elm$html$Html$img = _VirtualDom_node('img');
 var elm$html$Html$input = _VirtualDom_node('input');
-var elm$json$Json$Encode$bool = _Json_wrap;
 var elm$html$Html$Attributes$boolProperty = F2(
 	function (key, bool) {
 		return A2(
@@ -5976,6 +5979,7 @@ var elm$html$Html$Attributes$boolProperty = F2(
 			key,
 			elm$json$Json$Encode$bool(bool));
 	});
+var elm$html$Html$Attributes$controls = elm$html$Html$Attributes$boolProperty('controls');
 var elm$html$Html$Attributes$disabled = elm$html$Html$Attributes$boolProperty('disabled');
 var elm$html$Html$Attributes$height = function (n) {
 	return A2(
@@ -6313,6 +6317,24 @@ var author$project$Main$view = function (model) {
 								elm$html$Html$text(
 								A2(myrho$elm_round$Round$round, 1, model.sim.circ.hs))
 							]))
+					])),
+				A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$id('audio')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$audio,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$id('pulse-beep'),
+								elm$html$Html$Attributes$src('short-beep.mp3'),
+								elm$html$Html$Attributes$controls(false)
+							]),
+						_List_Nil)
 					]))
 			]));
 };

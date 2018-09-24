@@ -194,3 +194,7 @@ button {
 #hs_slider_value {
     grid-column: 2;
 }
+
+#audio {
+    background : red;
+}
